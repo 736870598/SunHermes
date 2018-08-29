@@ -1,10 +1,9 @@
-package com.sunxy.hermes.core;
+package com.sunxy.hermes.core.utils;
 
 import android.text.TextUtils;
 
 import com.sunxy.hermes.core.request.RequestBean;
 import com.sunxy.hermes.core.request.RequestParameter;
-import com.sunxy.hermes.core.utils.TypeUtils;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,10 +35,11 @@ public class TypeCenter {
     }
 
     private void registerMethod(Class<?> clazz){
+        mRawMethods.putIfAbsent(clazz, new ConcurrentHashMap<String, Method>());
+        ConcurrentHashMap<String, Method> map = mRawMethods.get(clazz);
+
         Method[] methods = clazz.getMethods();
         for (Method method : methods) {
-            mRawMethods.putIfAbsent(clazz, new ConcurrentHashMap<String, Method>());
-            ConcurrentHashMap<String, Method> map = mRawMethods.get(clazz);
             String key = TypeUtils.getMethodId(method);
             map.put(key, method);
         }

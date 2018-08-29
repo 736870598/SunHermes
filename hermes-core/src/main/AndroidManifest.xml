@@ -4,7 +4,7 @@
 
     <application>
 
-        <service android:name=".service.HermesService" />
+        <service android:name=".service.SunHermesService" />
 
     </application>
 

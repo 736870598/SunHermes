@@ -1,4 +1,4 @@
-package com.sunxy.hermes.core;
+package com.sunxy.hermes.core.utils;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -8,10 +8,11 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.TextUtils;
 
-import com.sunxy.hermes.core.service.HermesService;
+import com.sunxy.hermes.core.SunHermes;
+import com.sunxy.hermes.core.service.SunHermesService;
 import com.sunxy.hermes.core.service.Request;
-import com.sunxy.hermes.core.service.Responce;
-import com.sunxy.hermes.core.service.SunHermeService;
+import com.sunxy.hermes.core.service.Response;
+import com.sunxy.hermes.core.service.SunService;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,14 +28,14 @@ public class ServiceConnectionManager {
         return ourInstance;
     }
 
-    private final ConcurrentHashMap<Class<? extends HermesService>, SunHermeService> mHermesServices = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Class<? extends SunHermesService>, SunService> mHermesServices = new ConcurrentHashMap<>();
 
-    private final ConcurrentHashMap<Class<? extends HermesService>, HermesServiceConnection> mHermesServiceConnections = new ConcurrentHashMap();
+    private final ConcurrentHashMap<Class<? extends SunHermesService>, HermesServiceConnection> mHermesServiceConnections = new ConcurrentHashMap();
 
 
     private ServiceConnectionManager() {}
 
-    public void bind(Context context, String packageName, Class<? extends HermesService> service){
+    public void bind(Context context, String packageName, Class<? extends SunHermesService> service){
         HermesServiceConnection connection = new HermesServiceConnection(service);
         mHermesServiceConnections.put(service, connection);
         Intent intent;
@@ -48,11 +49,11 @@ public class ServiceConnectionManager {
     }
 
 
-    public Responce request(Class<HermesService> sunHermeServiceClass, Request request){
-        SunHermeService sunHermeService = mHermesServices.get(sunHermeServiceClass);
-        if (sunHermeService != null){
+    public Response request(Class<? extends SunHermesService> sunHermesServiceClass, Request request){
+        SunService sunService = mHermesServices.get(sunHermesServiceClass);
+        if (sunService != null){
             try {
-                return sunHermeService.send(request);
+                return sunService.send(request);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -63,16 +64,16 @@ public class ServiceConnectionManager {
 
     private class HermesServiceConnection implements ServiceConnection{
 
-        private Class<? extends HermesService> mClass;
+        private Class<? extends SunHermesService> mClass;
 
-        public HermesServiceConnection(Class<? extends HermesService> mClass) {
+        public HermesServiceConnection(Class<? extends SunHermesService> mClass) {
             this.mClass = mClass;
         }
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            SunHermeService sunHermeService = SunHermeService.Stub.asInterface(service);
-            mHermesServices.put(mClass, sunHermeService);
+            SunService sunService = SunService.Stub.asInterface(service);
+            mHermesServices.put(mClass, sunService);
         }
 
         @Override

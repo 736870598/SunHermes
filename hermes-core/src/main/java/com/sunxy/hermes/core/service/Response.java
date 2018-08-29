@@ -8,7 +8,7 @@ import android.os.Parcelable;
  * <p>
  * Created by sunxy on 2018/8/28 0028.
  */
-public class Responce implements Parcelable{
+public class Response implements Parcelable{
 
     //    响应的对象
     private String data;
@@ -17,11 +17,11 @@ public class Responce implements Parcelable{
         return data;
     }
 
-    public Responce(String data) {
+    public Response(String data) {
         this.data = data;
     }
 
-    protected Responce(Parcel in) {
+    protected Response(Parcel in) {
         data = in.readString();
     }
 
@@ -35,15 +35,15 @@ public class Responce implements Parcelable{
         return 0;
     }
 
-    public static final Creator<Responce> CREATOR = new Creator<Responce>() {
+    public static final Creator<Response> CREATOR = new Creator<Response>() {
         @Override
-        public Responce createFromParcel(Parcel in) {
-            return new Responce(in);
+        public Response createFromParcel(Parcel in) {
+            return new Response(in);
         }
 
         @Override
-        public Responce[] newArray(int size) {
-            return new Responce[size];
+        public Response[] newArray(int size) {
+            return new Response[size];
         }
     };
 

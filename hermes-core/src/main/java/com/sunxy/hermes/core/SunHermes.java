@@ -6,9 +6,12 @@ import com.google.gson.Gson;
 import com.sunxy.hermes.core.annotion.ClassId;
 import com.sunxy.hermes.core.request.RequestBean;
 import com.sunxy.hermes.core.request.RequestParameter;
-import com.sunxy.hermes.core.service.HermesService;
+import com.sunxy.hermes.core.service.SunHermesService;
 import com.sunxy.hermes.core.service.Request;
-import com.sunxy.hermes.core.service.Responce;
+import com.sunxy.hermes.core.service.Response;
+import com.sunxy.hermes.core.utils.ServiceConnectionManager;
+import com.sunxy.hermes.core.utils.SunHermesInvocationHandler;
+import com.sunxy.hermes.core.utils.TypeCenter;
 import com.sunxy.hermes.core.utils.TypeUtils;
 
 import java.lang.reflect.Method;
@@ -43,33 +46,36 @@ public class SunHermes {
     }
 
 
+    //--------------------------A进程-----------------------------------------
     public void register(Class<?> clazz) {
         typeCenter.register(clazz);
     }
 
 
-    public void connect(Context context, Class<? extends HermesService> service){
+
+    //--------------------------B进行-----------------------------------------
+    public void connect(Context context, Class<? extends SunHermesService> service){
         connectApp(context, null, service);
     }
 
-    private void connectApp(Context context, String packageName, Class<? extends HermesService> service){
+    private void connectApp(Context context, String packageName, Class<? extends SunHermesService> service){
         serviceConnectionManager.bind(context.getApplicationContext(), packageName, service);
     }
 
-    public <T> T getInstance(Class<T> clazz, Object... parameters){
-//        Responce responce = sendRequest(HermesService.class, clazz, null, parameters);
-        return getProxy(HermesService.class, clazz);
+    public <T> T getInstance(Class<T> clazz){
+        return getProxy(SunHermesService.class, clazz);
     }
 
-    private <T> T getProxy(Class<? extends HermesService> service, Class clazz){
+    private <T> T getProxy(Class<? extends SunHermesService> service, Class clazz){
         ClassLoader classLoader = service.getClassLoader();
         return (T) Proxy.newProxyInstance(classLoader, new Class<?>[]{clazz},
                 new SunHermesInvocationHandler(service, clazz));
     }
 
-    private <T> Responce sendRequest(Class<HermesService> hermesServiceClass,
-                                     Class<T> clazz, Method method, Object[] parameters){
+
+    public <T> Response sendObjectRequest(Class<? extends SunHermesService> hermesServiceClass, Class<T> clazz, Method method, Object[] parameters) {
         RequestBean requestBean = new RequestBean();
+        //获取class name
         ClassId classId = clazz.getAnnotation(ClassId.class);
         if (classId == null){
             requestBean.setClassName(clazz.getName());
@@ -79,10 +85,12 @@ public class SunHermes {
             requestBean.setResultClassName(classId.value());
         }
 
+        //设置方法名
         if (method != null){
             requestBean.setMethodName(TypeUtils.getMethodId(method));
         }
 
+        //设置参数信息，将参数都json化
         RequestParameter[] requestParameters = null;
         if (parameters != null && parameters.length > 0){
             requestParameters = new RequestParameter[parameters.length];
@@ -99,42 +107,7 @@ public class SunHermes {
             requestBean.setRequestParameters(requestParameters);
         }
 
-        Request request = new Request(gson.toJson(requestBean), TYPE_GET);
-        return serviceConnectionManager.request(hermesServiceClass, request);
-    }
-
-
-    public <T> Responce sendObjectRequest(Class hermesServiceClass, Class<T> clazz, Method method, Object[] parameters) {
-        RequestBean requestBean = new RequestBean();
-        ClassId classId = clazz.getAnnotation(ClassId.class);
-        if (classId == null){
-            requestBean.setClassName(clazz.getName());
-            requestBean.setResultClassName(clazz.getName());
-        }else{
-            requestBean.setClassName(classId.value());
-            requestBean.setResultClassName(classId.value());
-        }
-
-        if (method != null){
-            requestBean.setMethodName(TypeUtils.getMethodId(method));
-        }
-
-        RequestParameter[] requestParameters = null;
-        if (parameters != null && parameters.length > 0){
-            requestParameters = new RequestParameter[parameters.length];
-            for (int i = 0; i < parameters.length; i++) {
-                Object parameter = parameters[i];
-                String parameterClassName = parameter.getClass().getName();
-                String parameterValue = gson.toJson(parameter);
-
-                RequestParameter requestParameter = new RequestParameter(parameterClassName, parameterValue);
-                requestParameters[i] = requestParameter;
-            }
-        }
-        if (requestParameters != null){
-            requestBean.setRequestParameters(requestParameters);
-        }
-
+        //封装为Request对象
         Request request = new Request(gson.toJson(requestBean), TYPE_GET);
         return serviceConnectionManager.request(hermesServiceClass, request);
     }

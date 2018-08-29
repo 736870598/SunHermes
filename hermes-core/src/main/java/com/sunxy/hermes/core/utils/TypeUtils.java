@@ -114,29 +114,4 @@ public class TypeUtils {
             return false;
         }
     }
-
-    public static Method getMethodForGettingInstance(Class<?> clazz, String methodName, Class<?>[] parameterTypes)
-    {
-        Method[] methods = clazz.getMethods();
-        Method result = null;
-        if (parameterTypes == null) {
-            parameterTypes = new Class[0];
-        }
-        for (Method method : methods) {
-            String tmpName = method.getName();
-            if (tmpName.equals("getInstance")) {
-                if (classAssignable(method.getParameterTypes(), parameterTypes)) {
-                    result = method;
-                    break;
-                }
-            }
-        }
-        if (result != null) {
-            if (result.getReturnType() != clazz) {
-
-            }
-            return result;
-        }
-        return null;
-    }
 }

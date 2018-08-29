@@ -1,11 +1,12 @@
-package com.sunxy.hermes.core;
+package com.sunxy.hermes.core.utils;
 
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
-import com.sunxy.hermes.core.responce.ResponceBean;
-import com.sunxy.hermes.core.service.HermesService;
-import com.sunxy.hermes.core.service.Responce;
+import com.sunxy.hermes.core.SunHermes;
+import com.sunxy.hermes.core.response.ResponseBean;
+import com.sunxy.hermes.core.service.SunHermesService;
+import com.sunxy.hermes.core.service.Response;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -21,16 +22,16 @@ public class SunHermesInvocationHandler implements InvocationHandler {
     private static Gson gson = new Gson();
     private Class hermesService;
 
-    public SunHermesInvocationHandler(Class<? extends HermesService> service, Class clazz){
+    public SunHermesInvocationHandler(Class<? extends SunHermesService> service, Class clazz){
         this.clazz = clazz;
         this.hermesService = service;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Responce responce=SunHermes.getDefault().sendObjectRequest(hermesService, clazz, method, args);
+        Response responce= SunHermes.getDefault().sendObjectRequest(hermesService, clazz, method, args);
         if (!TextUtils.isEmpty(responce.getData())){
-            ResponceBean responceBean = gson.fromJson(responce.getData(), ResponceBean.class);
+            ResponseBean responceBean = gson.fromJson(responce.getData(), ResponseBean.class);
             if (responceBean.getData() != null){
                 String data = gson.toJson(responceBean.getData());
                 Class<?> returnType = method.getReturnType();

@@ -55,4 +55,12 @@ public class Request implements Parcelable{
         dest.writeString(data);
         dest.writeInt(type);
     }
+
+    @Override
+    public String toString() {
+        return "Request{" +
+                "data='" + data + '\'' +
+                ", type=" + type +
+                '}';
+    }
 }

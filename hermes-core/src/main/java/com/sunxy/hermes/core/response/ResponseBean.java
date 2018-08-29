@@ -1,15 +1,15 @@
-package com.sunxy.hermes.core.responce;
+package com.sunxy.hermes.core.response;
 
 /**
  * --
  * <p>
  * Created by sunxy on 2018/8/28 0028.
  */
-public class ResponceBean {
+public class ResponseBean {
 
     private Object data;
 
-    public ResponceBean(Object data){
+    public ResponseBean(Object data){
         this.data = data;
     }
 

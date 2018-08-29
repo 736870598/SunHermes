@@ -1,19 +1,19 @@
-package com.sunxy.hermes.core.responce;
+package com.sunxy.hermes.core.response;
 
 import com.google.gson.Gson;
-import com.sunxy.hermes.core.ObjectCenter;
-import com.sunxy.hermes.core.TypeCenter;
+import com.sunxy.hermes.core.utils.ObjectCenter;
+import com.sunxy.hermes.core.utils.TypeCenter;
 import com.sunxy.hermes.core.request.RequestBean;
 import com.sunxy.hermes.core.request.RequestParameter;
 import com.sunxy.hermes.core.service.Request;
-import com.sunxy.hermes.core.service.Responce;
+import com.sunxy.hermes.core.service.Response;
 
 /**
  * --
  * <p>
  * Created by sunxy on 2018/8/28 0028.
  */
-public abstract class ResponceMake {
+public abstract class ResponseMake {
 
     Class<?> resultClass;
 
@@ -23,15 +23,23 @@ public abstract class ResponceMake {
 
     TypeCenter typeCenter = TypeCenter.getInstance();
 
-    protected static final ObjectCenter OBJECT_CENTER = ObjectCenter.getInstance();
+    ObjectCenter objectCenter = ObjectCenter.getInstance();
 
     protected abstract Object invokeMethod();
 
     protected abstract void setMethod(RequestBean requestBean);
 
-    public Responce makeRespnce(Request request){
+    public Response makeResponse(Request request){
+        //1. 取出request中的requestBean消息并转换为requestBean。
         RequestBean requestBean = gson.fromJson(request.getData(), RequestBean.class);
+
+        //2. 通过requestBean中设置的目标单例类的名字去加载类。
         resultClass = typeCenter.getClassType(requestBean.getResultClassName());
+
+        //3. 通过requestBean中的设置的方法消信息获取到要执行的方法。
+        setMethod(requestBean);
+
+        //4. 组装参数，将参数进行还原组装。
         RequestParameter[] requestParameters = requestBean.getRequestParameters();
         if (requestParameters != null && requestParameters.length > 0){
             mParameters = new Object[requestParameters.length];
@@ -44,11 +52,12 @@ public abstract class ResponceMake {
             mParameters = new Object[0];
         }
 
-        setMethod(requestBean);
-
+        //5. 执行方法，并得到执行结果
         Object resultObj = invokeMethod();
-        ResponceBean responceBean = new ResponceBean(resultObj);
-        return new Responce(gson.toJson(responceBean));
+
+        //6. 将执行结果封装为Response返回给进行B
+        ResponseBean responseBean = new ResponseBean(resultObj);
+        return new Response(gson.toJson(responseBean));
     }
 
 
