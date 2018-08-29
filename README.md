@@ -202,7 +202,7 @@
         //2. 通过requestBean中设置的目标单例类的名字去加载类。
         resultClass = typeCenter.getClassType(requestBean.getResultClassName());
 
-        //3. 通过requestBean中的设置的方法消信息获取到要执行的方法。
+        //3. 通过requestBean中的设置的方法名获取到要执行的具体方法。
         setMethod(requestBean);
 
         //4. 组装参数，将参数进行还原组装。
@@ -245,7 +245,7 @@
     }
 
    在第 3 步中，setMethod中的代码，其中通过反射去加载getInstance方法并得到单例。
-   这里其实可以不把方法名写成getInstance也行，但是前提是要在一开始就将类put到objectCenter。
+   这里其实可以不把方法名写成getInstance也行，但是前提是在A进程中要在一开始就将类put到objectCenter。
 
     @Override
     protected void setMethod(RequestBean requestBean) {
@@ -299,4 +299,4 @@
 
    在第 5 步中就是通过反射执行代码：
 
-    return mMethod.invoke(instance, mParameters);
+    mMethod.invoke(instance, mParameters);

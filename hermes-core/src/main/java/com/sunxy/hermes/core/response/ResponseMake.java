@@ -36,7 +36,7 @@ public abstract class ResponseMake {
         //2. 通过requestBean中设置的目标单例类的名字去加载类。
         resultClass = typeCenter.getClassType(requestBean.getResultClassName());
 
-        //3. 通过requestBean中的设置的方法消信息获取到要执行的方法。
+        //3. 通过requestBean中的设置的方法名获取到要执行的具体方法。
         setMethod(requestBean);
 
         //4. 组装参数，将参数进行还原组装。
